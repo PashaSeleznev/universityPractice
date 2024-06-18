@@ -7,25 +7,25 @@ import os
 
 tts = pyttsx3.init()
 voices = tts.getProperty('voices')
-tts.setProperty('voices', 'ru')
+tts.setProperty('voices', 'en')
 
 for voice in voices:
-    if voice.name == 'Microsoft Irina Desktop - Russian':
-        tts.setProperty('voices', voice.id)
-        print(voice.id)
+    if voice.name == 'Microsoft David Desktop - English (United States)':
+        tts.setProperty('voice', voice.id)
 
-model = vosk.Model('model_small')
+model = vosk.Model('model_small_en')
 
-replicate_api_token = 'r8_7caJbRHMJ7hwDa2mZ5XDqbufOnPai9M3sm1Fb'
+# (Последний рабочий = r8_Le0vGPfpHOCJUhToejVoI6KpGyxeG853VCiez)
+replicate_api_token = 'r8_I62jutqwdgBSr55KW5a8G7s8r7UZ1f335XWX2'
 os.environ['REPLICATE_API_TOKEN'] = replicate_api_token
 
-record = vosk.KaldiRecognizer(model, 10000)
+record = vosk.KaldiRecognizer(model, 16000)
 aud = pyaudio.PyAudio()
 stream = aud.open(format=pyaudio.paInt16,
                   channels=1,
-                  rate=10000,
+                  rate=16000,
                   input=True,
-                  frames_per_buffer=10000)
+                  frames_per_buffer=4000)
 stream.start_stream()
 
 
@@ -50,14 +50,15 @@ def sendToLlama(text):
         result.append(str(event))
     return result
 
+
 def speaking(say):
     tts.say(say)
     tts.runAndWait()
 
 
 for text in listening():
-    if text == 'пока':
-        speaking('Всего хорошего')
+    if text == 'thank you':
+        speaking('have a nice day')
         quit()
     else:
         try:
@@ -66,7 +67,7 @@ for text in listening():
             resultString = "".join(result)
         except replicate.exceptions.ReplicateError as error:
             if error.status == 402:
-                resultString = 'Ваши попытки закончились'
+                resultString = 'You do not have attempts'
             else:
                 # Handle other potential errors
                 print(f"Replicate Error: {error}")
@@ -74,6 +75,3 @@ for text in listening():
 
         finally:
             speaking(resultString)
-
-
-
