@@ -16,7 +16,7 @@ for voice in voices:
 
 model = vosk.Model('model_small')
 
-replicate_api_token = 'r8_e6Zgbp2baxMymljZgOAvVh3rK5c3rUL3QP62G'
+replicate_api_token = 'r8_7caJbRHMJ7hwDa2mZ5XDqbufOnPai9M3sm1Fb'
 os.environ['REPLICATE_API_TOKEN'] = replicate_api_token
 
 record = vosk.KaldiRecognizer(model, 10000)
