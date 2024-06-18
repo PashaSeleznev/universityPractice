@@ -16,7 +16,7 @@ for voice in voices:
 
 model = vosk.Model('model_small')
 
-replicate_api_token = 'r8_KGV7hk6TABVZTE4sbc05klAiPxXEatJ2WepdN'
+replicate_api_token = 'r8_e6Zgbp2baxMymljZgOAvVh3rK5c3rUL3QP62G'
 os.environ['REPLICATE_API_TOKEN'] = replicate_api_token
 
 record = vosk.KaldiRecognizer(model, 10000)
@@ -43,7 +43,8 @@ def sendToLlama(text):
     for event in replicate.stream(
             "meta/meta-llama-3-70b-instruct",
             input={
-                "prompt": text
+                "prompt": text,
+                "temperature": 0.1
             },
     ):
         result.append(str(event))
@@ -55,21 +56,24 @@ def speaking(say):
 
 
 for text in listening():
-    try:
-        print(text)
-        result = sendToLlama(text)
-        resultString = "".join(result)
-    except replicate.exceptions.ReplicateError as error:
-        if error.status == 402:
-            resultString = 'Ваши попытки закончились'
-        else:
-            # Handle other potential errors
-            print(f"Replicate Error: {error}")
-            resultString = 'Ошибка'
-        if text == 'пока':
-            resultString = 'Всего хорошего'
-            quit()
-    finally:
-        speaking(resultString)
+    if text == 'пока':
+        speaking('Всего хорошего')
+        quit()
+    else:
+        try:
+            print(text)
+            result = sendToLlama(text)
+            resultString = "".join(result)
+        except replicate.exceptions.ReplicateError as error:
+            if error.status == 402:
+                resultString = 'Ваши попытки закончились'
+            else:
+                # Handle other potential errors
+                print(f"Replicate Error: {error}")
+                resultString = 'Ошибка'
+
+        finally:
+            speaking(resultString)
+
 
 
